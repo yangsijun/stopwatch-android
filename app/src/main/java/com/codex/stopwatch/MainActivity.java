@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -25,6 +26,16 @@ import android.widget.ScrollView;
 import android.widget.Space;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +43,8 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private static final String PREFS_NAME = "stopwatch_state";
     private static final long TRICK_SNAP_WINDOW_MILLIS = 200L;
+    private static final String BANNER_AD_UNIT_ID = "ca-app-pub-5213198969974533/7689431090";
+    private static final String INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-5213198969974533/9549307677";
     private static final int BLACK = Color.rgb(0, 0, 0);
     private static final int WHITE = Color.rgb(245, 245, 247);
     private static final int SUBTLE = Color.rgb(118, 118, 128);
@@ -52,6 +65,8 @@ public class MainActivity extends Activity {
     private TextView rightButton;
     private TimerDialView timerDialView;
     private LinearLayout lapListView;
+    private AdView bannerAdView;
+    private InterstitialAd interstitialAd;
 
     private long baseElapsedMillis;
     private long startRealtimeMillis;
@@ -78,6 +93,11 @@ public class MainActivity extends Activity {
         updateTime();
         updateControls();
         renderLaps();
+
+        MobileAds.initialize(this, initializationStatus -> {
+            loadBannerAd();
+            loadInterstitialAd();
+        });
     }
 
     @Override
@@ -86,18 +106,27 @@ public class MainActivity extends Activity {
         if (running) {
             startTicker();
         }
+        if (bannerAdView != null) {
+            bannerAdView.resume();
+        }
     }
 
     @Override
     protected void onPause() {
         saveState();
         handler.removeCallbacks(ticker);
+        if (bannerAdView != null) {
+            bannerAdView.pause();
+        }
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         handler.removeCallbacks(ticker);
+        if (bannerAdView != null) {
+            bannerAdView.destroy();
+        }
         super.onDestroy();
     }
 
@@ -223,7 +252,74 @@ public class MainActivity extends Activity {
         );
         root.addView(scrollView, listParams);
 
+        bannerAdView = new AdView(this);
+        bannerAdView.setAdUnitId(BANNER_AD_UNIT_ID);
+        bannerAdView.setAdSize(adaptiveBannerSize());
+        LinearLayout.LayoutParams bannerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        bannerParams.gravity = Gravity.CENTER_HORIZONTAL;
+        bannerParams.topMargin = dp(6);
+        // 루트 좌우 패딩(22dp)을 상쇄해 배너를 화면 양 끝까지 채운다.
+        bannerParams.leftMargin = -dp(22);
+        bannerParams.rightMargin = -dp(22);
+        root.addView(bannerAdView, bannerParams);
+
         return root;
+    }
+
+    private AdSize adaptiveBannerSize() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int adWidthDp = Math.round(metrics.widthPixels / metrics.density);
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidthDp);
+    }
+
+    private void loadBannerAd() {
+        if (bannerAdView != null) {
+            bannerAdView.loadAd(new AdRequest.Builder().build());
+        }
+    }
+
+    private void loadInterstitialAd() {
+        InterstitialAd.load(
+                this,
+                INTERSTITIAL_AD_UNIT_ID,
+                new AdRequest.Builder().build(),
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(InterstitialAd ad) {
+                        interstitialAd = ad;
+                        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                interstitialAd = null;
+                                loadInterstitialAd();
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                interstitialAd = null;
+                                loadInterstitialAd();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+                        interstitialAd = null;
+                    }
+                }
+        );
+    }
+
+    private void showInterstitialAd() {
+        if (interstitialAd != null) {
+            interstitialAd.show(this);
+        } else {
+            // 아직 준비되지 않았으면 다음 리셋을 위해 미리 로드한다.
+            loadInterstitialAd();
+        }
     }
 
     private View createSecretSegmentHeader() {
@@ -290,6 +386,7 @@ public class MainActivity extends Activity {
         if (baseElapsedMillis > 0L || !laps.isEmpty()) {
             resetStopwatch();
             leftButton.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
+            showInterstitialAd();
         }
     }
 
