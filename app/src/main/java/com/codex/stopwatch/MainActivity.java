@@ -132,21 +132,14 @@ public class MainActivity extends Activity {
         TextView title = new TextView(this);
         title.setText("스톱워치");
         title.setTextColor(WHITE);
-        title.setTextSize(18);
+        title.setTextSize(22);
         title.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
         title.setIncludeFontPadding(false);
-        header.addView(title, new LinearLayout.LayoutParams(0, dp(40), 1f));
+        header.addView(title, new LinearLayout.LayoutParams(0, dp(46), 1f));
 
-        TextView precision = new TextView(this);
-        precision.setText("1/100초");
-        precision.setTextColor(SUBTLE);
-        precision.setTextSize(12);
-        precision.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        precision.setIncludeFontPadding(false);
-        header.addView(precision, new LinearLayout.LayoutParams(0, dp(40), 1f));
         root.addView(header, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(40)
+                dp(46)
         ));
 
         Space topSpacer = new Space(this);
@@ -166,7 +159,7 @@ public class MainActivity extends Activity {
         timeView = new TextView(this);
         timeView.setGravity(Gravity.CENTER);
         timeView.setTextColor(WHITE);
-        timeView.setTextSize(40);
+        timeView.setTextSize(46);
         timeView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         timeView.setIncludeFontPadding(false);
         timeView.setLetterSpacing(0f);
@@ -177,7 +170,7 @@ public class MainActivity extends Activity {
         ));
         root.addView(dialFrame, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(222)
+                dp(288)
         ));
 
         LinearLayout controls = new LinearLayout(this);
@@ -185,7 +178,7 @@ public class MainActivity extends Activity {
         controls.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams controlsParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(76)
+                dp(88)
         );
         controlsParams.topMargin = dp(18);
 
@@ -209,9 +202,9 @@ public class MainActivity extends Activity {
                 dp(64)
         );
         lapHeaderParams.topMargin = dp(8);
-        lapHeader.addView(createLapText("랩", 12, SUBTLE, Gravity.START), new LinearLayout.LayoutParams(0, dp(64), 0.75f));
+        lapHeader.addView(createLapText("랩", 14, SUBTLE, Gravity.START), new LinearLayout.LayoutParams(0, dp(64), 0.75f));
         lapHeader.addView(createSecretSegmentHeader(), new LinearLayout.LayoutParams(0, dp(64), 1.8f));
-        lapHeader.addView(createLapText("전체", 12, SUBTLE, Gravity.END), new LinearLayout.LayoutParams(0, dp(64), 0.75f));
+        lapHeader.addView(createLapText("전체", 14, SUBTLE, Gravity.END), new LinearLayout.LayoutParams(0, dp(64), 0.75f));
         root.addView(lapHeader, lapHeaderParams);
 
         ScrollView scrollView = new ScrollView(this);
@@ -274,16 +267,16 @@ public class MainActivity extends Activity {
     private TextView createCircleButton() {
         TextView button = new TextView(this);
         button.setGravity(Gravity.CENTER);
-        button.setTextSize(14);
+        button.setTextSize(16);
         button.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
         button.setIncludeFontPadding(false);
-        button.setMinWidth(dp(64));
-        button.setMinHeight(dp(64));
+        button.setMinWidth(dp(76));
+        button.setMinHeight(dp(76));
         button.setClickable(true);
         button.setFocusable(true);
         button.setStateListAnimator(null);
         button.setPadding(dp(2), 0, dp(2), 0);
-        button.setLayoutParams(new LinearLayout.LayoutParams(dp(64), dp(64)));
+        button.setLayoutParams(new LinearLayout.LayoutParams(dp(76), dp(76)));
         return button;
     }
 
@@ -360,7 +353,7 @@ public class MainActivity extends Activity {
         long elapsedMillis = currentElapsedMillis();
         String time = formatDuration(elapsedMillis);
         timeView.setText(time);
-        timeView.setTextSize(time.length() > 8 ? 34 : 40);
+        timeView.setTextSize(time.length() > 8 ? 39 : 46);
         if (timerDialView != null) {
             timerDialView.setState(elapsedMillis, running);
         }
@@ -419,13 +412,13 @@ public class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, 0, 0, 0);
 
-        TextView number = createLapText("#" + lap.number, 15, SUBTLE, Gravity.START);
-        TextView lapTime = createLapText(formatDuration(lap.lapDurationMillis), 18, WHITE, Gravity.CENTER);
-        TextView totalTime = createLapText(formatDuration(lap.totalMillis), 15, SUBTLE, Gravity.END);
+        TextView number = createLapText("#" + lap.number, 16, SUBTLE, Gravity.START);
+        TextView lapTime = createLapText(formatDuration(lap.lapDurationMillis), 20, WHITE, Gravity.CENTER);
+        TextView totalTime = createLapText(formatDuration(lap.totalMillis), 16, SUBTLE, Gravity.END);
 
-        row.addView(number, new LinearLayout.LayoutParams(0, dp(48), 0.7f));
-        row.addView(lapTime, new LinearLayout.LayoutParams(0, dp(48), 1.15f));
-        row.addView(totalTime, new LinearLayout.LayoutParams(0, dp(48), 1.15f));
+        row.addView(number, new LinearLayout.LayoutParams(0, dp(54), 0.7f));
+        row.addView(lapTime, new LinearLayout.LayoutParams(0, dp(54), 1.15f));
+        row.addView(totalTime, new LinearLayout.LayoutParams(0, dp(54), 1.15f));
         return row;
     }
 
