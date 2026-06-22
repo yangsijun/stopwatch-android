@@ -159,7 +159,7 @@ public class MainActivity extends Activity {
         header.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView title = new TextView(this);
-        title.setText("스톱워치");
+        title.setText("StopGo");
         title.setTextColor(WHITE);
         title.setTextSize(22);
         title.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));

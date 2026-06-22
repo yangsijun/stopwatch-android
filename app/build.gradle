@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.codex.stopwatch'
+        applicationId 'xyz.tntlabs.stopgo'
         minSdk 23
         targetSdk 36
         versionCode 1
