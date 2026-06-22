@@ -4,6 +4,7 @@ build/
 app/build/
 tmp/
 local.properties
+keystore.properties
 *.apk
 *.aab
 *.jks

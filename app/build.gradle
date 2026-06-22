@@ -2,6 +2,13 @@ plugins {
     id 'com.android.application'
 }
 
+// 릴리스 서명 정보는 저장소에 커밋하지 않는 keystore.properties 에서 읽는다.
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.codex.stopwatch'
     compileSdk 36
@@ -17,6 +24,27 @@ android {
         targetSdk 36
         versionCode 1
         versionName '1.0'
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            // keystore.properties 가 있을 때만 릴리스 키로 서명한다.
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+        }
     }
 }
 
